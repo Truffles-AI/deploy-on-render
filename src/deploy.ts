@@ -49,15 +49,28 @@ interface DeploymentConfig {
   updatedAt: string
 }
 
+enum ShellColors {
+  RED = '\x1b[31m',
+  GREEN = '\x1b[32m',
+  YELLOW = '\x1b[33m',
+  BLUE = '\x1b[34m',
+  MAGENTA = '\x1b[35m',
+  NOCOLOR = '\x1b[0m'
+}
+
 let render = {
   render_api_key: core.getInput('render_api_key'),
   service_id: core.getInput('service_id')
 }
-sdk.auth(core.getInput('render_api_key'))
+sdk.auth(render.render_api_key)
 sdk
   .getOwners({ limit: '20' })
-  .then(({ data }: { data: IGetOwnersResponse }) => console.log(data))
-  .catch((err: any) => console.error(err))
+  .then(({ data }: { data: IGetOwnersResponse }) =>
+    console.log(`${ShellColors.BLUE}Got Owners${ShellColors.NOCOLOR}`)
+  )
+  .catch((err: any) =>
+    console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`)
+  )
 
 interface Deployment {
   id: string
@@ -76,43 +89,62 @@ let deployId: string, deploymentStatus: string
 
 export function triggerDeploy() {
   sdk
-    .createDeploy(
-      { clearCache: 'clear' },
-      { serviceId: core.getInput('service_id') }
-    )
+    .createDeploy({ clearCache: 'clear' }, { serviceId: render.service_id })
     .then(({ data }: { data: Deployment }) => {
-      console.log(data)
+      console.log(
+        `${ShellColors.GREEN}Deployment Created${ShellColors.NOCOLOR}`
+      )
       const { id } = data
       deployId = id
       setInterval(() => {
         sdk
-          .getDeploy({ serviceId: core.getInput('service_id'), deployId })
+          .getDeploy({ serviceId: render.service_id, deployId })
           .then(({ data }: { data: Deployment }) => {
-            console.log(data)
+            console.log(
+              `${ShellColors.GREEN}Checking Deployment Status${ShellColors.NOCOLOR}`
+            )
             const { status } = data
             deploymentStatus = status
-            if (status === 'live') {
-              console.log('Deployment is live')
+            if (deploymentStatus === 'live') {
+              console.log(
+                `${ShellColors.MAGENTA}Deployment Successful${ShellColors.NOCOLOR}`
+              )
               sdk
-                .getService({ serviceId: core.getInput('service_id') })
+                .getService({ serviceId: render.service_id })
                 .then(({ data }: { data: DeploymentConfig }) => {
-                  console.log(data)
+                  console.log(
+                    `${ShellColors.GREEN}Got Service Details${ShellColors.NOCOLOR}`
+                  )
                   const { url } = data.serviceDetails
                   core.setOutput('render_url', url)
                 })
-                .catch((err: any) => console.error(err))
+                .catch((err: any) =>
+                  console.error(
+                    `${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`
+                  )
+                )
               process.exit(0)
-            } else if (status === 'build_failed') {
-              console.error('Deployment failed')
+            } else if (deploymentStatus === 'build_failed') {
+              console.error(
+                `${ShellColors.RED}Deployment failed${ShellColors.NOCOLOR}`
+              )
               process.exit(1)
             } else {
-              console.log('Deployment is in progress')
+              console.log(
+                `${ShellColors.YELLOW}Deployment in progress${ShellColors.NOCOLOR}`
+              )
             }
           })
-          .catch((err: any) => console.error(err))
+          .catch((err: any) =>
+            console.error(
+              `${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`
+            )
+          )
       }, 2000)
     })
-    .catch((err: any) => console.error(err))
+    .catch((err: any) =>
+      console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`)
+    )
 }
 
 triggerDeploy()

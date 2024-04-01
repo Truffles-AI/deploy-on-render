@@ -82120,54 +82120,63 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.triggerDeploy = void 0;
 const sdk = __nccwpck_require__(56326)('@render-api/v1.0#34i64rhilu8ilhkj');
 const core = __importStar(__nccwpck_require__(19093));
+var ShellColors;
+(function (ShellColors) {
+    ShellColors["RED"] = "\u001B[31m";
+    ShellColors["GREEN"] = "\u001B[32m";
+    ShellColors["YELLOW"] = "\u001B[33m";
+    ShellColors["BLUE"] = "\u001B[34m";
+    ShellColors["MAGENTA"] = "\u001B[35m";
+    ShellColors["NOCOLOR"] = "\u001B[0m";
+})(ShellColors || (ShellColors = {}));
 let render = {
     render_api_key: core.getInput('render_api_key'),
     service_id: core.getInput('service_id')
 };
-sdk.auth(core.getInput('render_api_key'));
+sdk.auth(render.render_api_key);
 sdk
     .getOwners({ limit: '20' })
-    .then(({ data }) => console.log(data))
-    .catch((err) => console.error(err));
+    .then(({ data }) => console.log(`${ShellColors.BLUE}Got Owners${ShellColors.NOCOLOR}`))
+    .catch((err) => console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`));
 let deployId, deploymentStatus;
 function triggerDeploy() {
     sdk
-        .createDeploy({ clearCache: 'clear' }, { serviceId: core.getInput('service_id') })
+        .createDeploy({ clearCache: 'clear' }, { serviceId: render.service_id })
         .then(({ data }) => {
-        console.log(data);
+        console.log(`${ShellColors.GREEN}Deployment Created${ShellColors.NOCOLOR}`);
         const { id } = data;
         deployId = id;
         setInterval(() => {
             sdk
-                .getDeploy({ serviceId: core.getInput('service_id'), deployId })
+                .getDeploy({ serviceId: render.service_id, deployId })
                 .then(({ data }) => {
-                console.log(data);
+                console.log(`${ShellColors.GREEN}Checking Deployment Status${ShellColors.NOCOLOR}`);
                 const { status } = data;
                 deploymentStatus = status;
-                if (status === 'live') {
-                    console.log('Deployment is live');
+                if (deploymentStatus === 'live') {
+                    console.log(`${ShellColors.MAGENTA}Deployment Successful${ShellColors.NOCOLOR}`);
                     sdk
-                        .getService({ serviceId: core.getInput('service_id') })
+                        .getService({ serviceId: render.service_id })
                         .then(({ data }) => {
-                        console.log(data);
+                        console.log(`${ShellColors.GREEN}Got Service Details${ShellColors.NOCOLOR}`);
                         const { url } = data.serviceDetails;
                         core.setOutput('render_url', url);
                     })
-                        .catch((err) => console.error(err));
+                        .catch((err) => console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`));
                     process.exit(0);
                 }
-                else if (status === 'build_failed') {
-                    console.error('Deployment failed');
+                else if (deploymentStatus === 'build_failed') {
+                    console.error(`${ShellColors.RED}Deployment failed${ShellColors.NOCOLOR}`);
                     process.exit(1);
                 }
                 else {
-                    console.log('Deployment is in progress');
+                    console.log(`${ShellColors.YELLOW}Deployment in progress${ShellColors.NOCOLOR}`);
                 }
             })
-                .catch((err) => console.error(err));
+                .catch((err) => console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`));
         }, 2000);
     })
-        .catch((err) => console.error(err));
+        .catch((err) => console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`));
 }
 exports.triggerDeploy = triggerDeploy;
 triggerDeploy();
