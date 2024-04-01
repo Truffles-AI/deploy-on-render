@@ -82143,11 +82143,11 @@ let deployId, deploymentStatus;
 const THIRTY_MINUTES_IN_MS = 1 * 60 * 1000;
 // Set a timeout to exit the process after 30 minutes
 const timeout = setTimeout(() => {
-    console.error(`${ShellColors.RED}Script timed out after 30 minutes${ShellColors.NOCOLOR}`);
     sdk
         .cancelDeploy({ serviceId: render.service_id, deployId })
-        .then(({ data }) => console.log(data))
+        .then(({ data }) => console.log(`${ShellColors.MAGENTA}Deployment Canceled${ShellColors.NOCOLOR}`))
         .catch((err) => console.error(err));
+    console.error(`${ShellColors.RED}Script timed out after 30 minutes${ShellColors.NOCOLOR}`);
     process.exit(1);
 }, THIRTY_MINUTES_IN_MS);
 // Clear the timeout if the deployment is successful or failed

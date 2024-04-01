@@ -92,13 +92,17 @@ const THIRTY_MINUTES_IN_MS = 1 * 60 * 1000
 
 // Set a timeout to exit the process after 30 minutes
 const timeout = setTimeout(() => {
+  sdk
+    .cancelDeploy({ serviceId: render.service_id, deployId })
+    .then(({ data }: { data: Deployment }) =>
+      console.log(
+        `${ShellColors.MAGENTA}Deployment Canceled${ShellColors.NOCOLOR}`
+      )
+    )
+    .catch((err: any) => console.error(err))
   console.error(
     `${ShellColors.RED}Script timed out after 30 minutes${ShellColors.NOCOLOR}`
   )
-  sdk
-    .cancelDeploy({ serviceId: render.service_id, deployId })
-    .then(({ data }: { data: Deployment }) => console.log(data))
-    .catch((err: any) => console.error(err))
   process.exit(1)
 }, THIRTY_MINUTES_IN_MS)
 
