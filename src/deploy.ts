@@ -79,7 +79,7 @@ interface Deployment {
     message: string
     createdAt: string
   }
-  status: 'build_in_progress' | 'live' | 'build_failed'
+  status: 'build_in_progress' | 'live' | 'build_failed' | 'canceled'
   trigger: 'api' | 'new_commit'
   createdAt: string
   updatedAt: string
@@ -127,6 +127,11 @@ export function triggerDeploy() {
             } else if (deploymentStatus === 'build_failed') {
               console.error(
                 `${ShellColors.RED}Deployment failed${ShellColors.NOCOLOR}`
+              )
+              process.exit(1)
+            } else if (deploymentStatus === 'canceled') {
+              console.error(
+                `${ShellColors.RED}Deployment canceled manually${ShellColors.NOCOLOR}`
               )
               process.exit(1)
             } else {

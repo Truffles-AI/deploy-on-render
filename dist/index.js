@@ -82169,6 +82169,10 @@ function triggerDeploy() {
                     console.error(`${ShellColors.RED}Deployment failed${ShellColors.NOCOLOR}`);
                     process.exit(1);
                 }
+                else if (deploymentStatus === 'canceled') {
+                    console.error(`${ShellColors.RED}Deployment canceled manually${ShellColors.NOCOLOR}`);
+                    process.exit(1);
+                }
                 else {
                     console.log(`${ShellColors.YELLOW}Deployment in progress${ShellColors.NOCOLOR}`);
                 }
