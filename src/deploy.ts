@@ -182,22 +182,3 @@ export function triggerDeploy() {
 }
 
 triggerDeploy()
-
-// let sdk = require('api')('@render-api/v1.0#34i64rhilu8ilhkj')
-
-// sdk.auth('rnd_xAToYjK30ui8mFxaJb4siuAgSVkKd')
-// sdk
-//   .getOwners({ limit: '20' })
-//   .then(({ data }) => console.log(data))
-//   .catch(err => console.error(err))
-
-// sdk = require('api')('@render-api/v1.0#34i64rhilu8ilhkj')
-
-// sdk.auth('rnd_xAToYjK30ui8mFxaJb4siuAgSVkKd')
-// sdk
-//   .createDeploy(
-//     { clearCache: 'clear' },
-//     { serviceId: 'srv-co30071cf7o1s73928l7g' }
-//   )
-//   .then(({ data }) => console.log(data))
-//   .catch(err => console.error(err))
