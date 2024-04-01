@@ -19,6 +19,10 @@ inputs:
   service_id:
     description: 'Service ID'
     required: true
+  timeout:
+    description: 'Timeout in minutes for the deployment to complete.'
+    required: true
+    default: '30'
 
 # Define your outputs here.
 outputs:

@@ -88,7 +88,7 @@ interface Deployment {
 let deployId: string, deploymentStatus: string
 
 // Convert 30 minutes to milliseconds
-const THIRTY_MINUTES_IN_MS = 1 * 60 * 1000
+const TIMEOUT_IN_MS = +core.getInput('timeout') * 60 * 1000
 
 // Set a timeout to exit the process after 30 minutes
 const timeout = setTimeout(() => {
@@ -101,10 +101,10 @@ const timeout = setTimeout(() => {
     )
     .catch((err: any) => console.error(err))
   console.error(
-    `${ShellColors.RED}Script timed out after 30 minutes${ShellColors.NOCOLOR}`
+    `${ShellColors.RED}Script timed out after being timedout${ShellColors.NOCOLOR}`
   )
   process.exit(1)
-}, THIRTY_MINUTES_IN_MS)
+}, TIMEOUT_IN_MS)
 
 // Clear the timeout if the deployment is successful or failed
 function clearScriptTimeout() {
