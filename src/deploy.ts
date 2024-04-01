@@ -54,7 +54,7 @@ enum ShellColors {
   GREEN = '\x1b[32m',
   YELLOW = '\x1b[33m',
   BLUE = '\x1b[34m',
-  MAGENTA = '\x1b[35m',
+  MAGENTA = '\x1b[330m',
   NOCOLOR = '\x1b[0m'
 }
 
@@ -80,12 +80,32 @@ interface Deployment {
     createdAt: string
   }
   status: 'build_in_progress' | 'live' | 'build_failed' | 'canceled'
-  trigger: 'api' | 'new_commit'
+  trigger: 'api' | 'new_commit' | 'manual'
   createdAt: string
   updatedAt: string
   finishedAt: string | null
 }
 let deployId: string, deploymentStatus: string
+
+// Convert 30 minutes to milliseconds
+const THIRTY_MINUTES_IN_MS = 1 * 60 * 1000
+
+// Set a timeout to exit the process after 30 minutes
+const timeout = setTimeout(() => {
+  console.error(
+    `${ShellColors.RED}Script timed out after 30 minutes${ShellColors.NOCOLOR}`
+  )
+  sdk
+    .cancelDeploy({ serviceId: render.service_id, deployId })
+    .then(({ data }: { data: Deployment }) => console.log(data))
+    .catch((err: any) => console.error(err))
+  process.exit(1)
+}, THIRTY_MINUTES_IN_MS)
+
+// Clear the timeout if the deployment is successful or failed
+function clearScriptTimeout() {
+  clearTimeout(timeout)
+}
 
 export function triggerDeploy() {
   sdk
@@ -106,6 +126,7 @@ export function triggerDeploy() {
             const { status } = data
             deploymentStatus = status
             if (deploymentStatus === 'live') {
+              clearScriptTimeout()
               console.log(
                 `${ShellColors.MAGENTA}Deployment Successful${ShellColors.NOCOLOR}`
               )
@@ -125,11 +146,13 @@ export function triggerDeploy() {
                 )
               process.exit(0)
             } else if (deploymentStatus === 'build_failed') {
+              clearScriptTimeout()
               console.error(
                 `${ShellColors.RED}Deployment failed${ShellColors.NOCOLOR}`
               )
               process.exit(1)
             } else if (deploymentStatus === 'canceled') {
+              clearScriptTimeout()
               console.error(
                 `${ShellColors.RED}Deployment canceled manually${ShellColors.NOCOLOR}`
               )
@@ -140,23 +163,25 @@ export function triggerDeploy() {
               )
             }
           })
-          .catch((err: any) =>
+          .catch((err: any) => {
+            clearScriptTimeout()
             console.error(
               `${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`
             )
-          )
+          })
       }, 2000)
     })
-    .catch((err: any) =>
+    .catch((err: any) => {
+      clearScriptTimeout()
       console.error(`${ShellColors.RED}Error: ${err}${ShellColors.NOCOLOR}`)
-    )
+    })
 }
 
 triggerDeploy()
 
 // let sdk = require('api')('@render-api/v1.0#34i64rhilu8ilhkj')
 
-// sdk.auth('rnd_xAToYjK5ui8mFxaJb4siuAgSVkKd')
+// sdk.auth('rnd_xAToYjK30ui8mFxaJb4siuAgSVkKd')
 // sdk
 //   .getOwners({ limit: '20' })
 //   .then(({ data }) => console.log(data))
@@ -164,11 +189,11 @@ triggerDeploy()
 
 // sdk = require('api')('@render-api/v1.0#34i64rhilu8ilhkj')
 
-// sdk.auth('rnd_xAToYjK5ui8mFxaJb4siuAgSVkKd')
+// sdk.auth('rnd_xAToYjK30ui8mFxaJb4siuAgSVkKd')
 // sdk
 //   .createDeploy(
 //     { clearCache: 'clear' },
-//     { serviceId: 'srv-co5071cf7o1s73928l7g' }
+//     { serviceId: 'srv-co30071cf7o1s73928l7g' }
 //   )
 //   .then(({ data }) => console.log(data))
 //   .catch(err => console.error(err))
