@@ -82150,7 +82150,7 @@ function triggerDeploy() {
             sdk
                 .getDeploy({ serviceId: render.service_id, deployId })
                 .then(({ data }) => {
-                console.log(`${ShellColors.GREEN}Checking Deployment Status${ShellColors.NOCOLOR}`);
+                console.log(`${ShellColors.BLUE}Checking Deployment Status${ShellColors.NOCOLOR}`);
                 const { status } = data;
                 deploymentStatus = status;
                 if (deploymentStatus === 'live') {

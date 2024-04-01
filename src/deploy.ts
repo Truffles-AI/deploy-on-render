@@ -101,7 +101,7 @@ export function triggerDeploy() {
           .getDeploy({ serviceId: render.service_id, deployId })
           .then(({ data }: { data: Deployment }) => {
             console.log(
-              `${ShellColors.GREEN}Checking Deployment Status${ShellColors.NOCOLOR}`
+              `${ShellColors.BLUE}Checking Deployment Status${ShellColors.NOCOLOR}`
             )
             const { status } = data
             deploymentStatus = status
